@@ -60,8 +60,13 @@ struct fooD
     check cStructsPat.match("""
 struct fooD
 {
-    bool        bar;        /* comment for bar */
-    uint16_t    ddd;        /* comment for ddd */
+    bool        bar;        /*
+                             * comment for bar
+                             */
+    /*
+     * comment for ddd
+     */
+    uint16_t    ddd;
 };
 """, structs).ok
     when defined(debug):
@@ -70,11 +75,17 @@ struct fooD
                                elems: @[CStructElem(typ: "bool",
                                                     ident: "bar",
                                                     commentSingle: "",
-                                                    commentMulti: "comment for bar"),
+                                                    commentMulti: """
+
+                             * comment for bar
+                             """),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "ddd",
                                                     commentSingle: "",
-                                                    commentMulti: "comment for ddd")])
+                                                    commentMulti: """
+
+     * comment for ddd
+     """)])
     ]
 
   test "structs with arrays":
@@ -152,11 +163,11 @@ struct fooBar
                                elems: @[CStructElem(typ: "uint32_t",
                                                     ident: "a",
                                                     commentSingle: "",
-                                                    commentMulti: ""),
+                                                    commentMulti: " comment a "),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "b",
                                                     commentSingle: "",
-                                                    commentMulti: "")])
+                                                    commentMulti: " comment b ")])
     ]
 
   test "multiple structs":
@@ -228,11 +239,11 @@ struct fooBarArr
                                elems: @[CStructElem(typ: "uint32_t",
                                                     ident: "a",
                                                     commentSingle: "",
-                                                    commentMulti: ""),
+                                                    commentMulti: " comment a "),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "b",
                                                     commentSingle: "",
-                                                    commentMulti: ""),
+                                                    commentMulti: " comment b "),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "c",
                                                     commentSingle: "",
@@ -240,15 +251,15 @@ struct fooBarArr
                                         CStructElem(typ: "uint32_t",
                                                     ident: "d",
                                                     commentSingle: "",
-                                                    commentMulti: ""),
+                                                    commentMulti: " comment d "),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "e",
                                                     commentSingle: "",
-                                                    commentMulti: ""),
+                                                    commentMulti: " comment e "),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "f",
                                                     commentSingle: "",
-                                                    commentMulti: "")]),
+                                                    commentMulti: " comment f ")]),
                        CStruct(typ: "fooBarArr",
                                elems: @[CStructElem(typ: "fooBar",
                                                     ident: "profiles[NO_OF_PROFILES]",

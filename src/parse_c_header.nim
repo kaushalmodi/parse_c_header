@@ -1,4 +1,3 @@
-import std/[strutils]
 import npeg
 
 type
@@ -9,6 +8,8 @@ type
     commentMulti*: string
   CStruct* = object
     typ*: string
+    commentSingle*: string
+    commentMulti*: string
     elems*: seq[CStructElem]
 
 var
@@ -29,6 +30,10 @@ let
                     elems: elemsVar)
       structTyp.reset
       elemsVar.reset
+      commentSingleVar.reset
+      commentMultiVar.reset
+      when defined(debug):
+        echo "---\n"
 
     # '\n'         : Literally matches newline char
     # *            : pattern concatenation op
@@ -49,7 +54,7 @@ let
       commentSingleVar = $1
 
     commentMultiEnd <- "*/"
-    commentMulti <- "/*" * *spOrNl * >*(1 - commentMultiEnd) * *spOrNl * commentMultiEnd:
+    commentMulti <- "/*" * >*(1 - commentMultiEnd) * commentMultiEnd:
       when defined(debug):
         echo "comment multi = ", $1
       commentMultiVar = $1
@@ -65,14 +70,17 @@ let
       when defined(debug):
         echo "found blockEnd"
 
-    elemLine <- *Blank * >ident * +Blank * >idents * *Blank * ';' * *Blank * ?comment * ?nl:
+    elemLine <- *Blank * ?commentMulti * ?nl *
+                *Blank * >ident * +Blank * >idents * *Blank * ';' * *Blank * ?comment * ?nl:
       when defined(debug):
         echo "elem type = ", $1
         echo "elem identifier = ", $2
+        echo "elem comment single = ", commentSingleVar
+        echo "elem comment multi = ", commentMultiVar
       elemsVar.add CStructElem(typ: $1,
                                ident: $2,
-                               commentSingle: commentSingleVar.strip(),
-                               commentMulti: commentMultiVar.strip())
+                               commentSingle: commentSingleVar,
+                               commentMulti: commentMultiVar)
       commentSingleVar.reset
       commentMultiVar.reset
 
