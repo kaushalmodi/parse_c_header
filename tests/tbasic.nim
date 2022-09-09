@@ -22,4 +22,4 @@ doAssert structs == @[CStruct(typ: "foo_s",
                                        CStructElem(typ: "uint32_t",
                                                    ident: "bar",
                                                    commentSingle: "",
-                                                   commentMulti: "comment for bar")])]
+                                                   commentMulti: " comment for bar ")])]
