@@ -1,0 +1,53 @@
+#+title: C Header parser
+
+[[https://github.com/kaushalmodi/parse_c_header/actions/workflows/test.yml][https://github.com/kaushalmodi/parse_c_header/actions/workflows/test.yml/badge.svg]]
+
+Basic parser of C headers.
+
+- Note :: This package is of "alpha" quality level. Use it at your own
+  risk. At the moment, this package parses only basic structs from
+  header files, and the parsed object types are going to change a lot.
+
+* Installation
+#+begin_src shell
+nimble install https://github.com/kaushalmodi/parse_c_header
+#+end_src
+* What does this library parse?
+- [X] ~structs~
+* Usage example
+#+begin_src nim
+import npeg
+import parse_c_header
+
+var
+  structs: seq[CStruct]
+
+doAssert cStructsPat.match("""
+struct foo_s
+{
+    bool     foo; // comment for foo
+    uint32_t bar; // comment for bar
+};
+""", structs).ok
+
+echo structs
+
+doAssert structs == @[CStruct(typ: "foo_s",
+                              elems: @[CStructElem(typ: "bool",
+                                                   ident: "foo",
+                                                   comment: "comment for foo"),
+                                       CStructElem(typ: "uint32_t",
+                                                   ident: "bar",
+                                                   comment: "comment for bar")])]
+#+end_src
+* Development
+** Environment Setup
+#+begin_src shell
+git clone https://github.com/kaushalmodi/parse_c_header
+cd parse_c_header
+nim pullConfig
+#+end_src
+** Running tests
+#+begin_src shell
+nim test
+#+end_src
