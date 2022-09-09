@@ -1,17 +1,20 @@
+import std/[strutils]
 import npeg
 
 type
   CStructElem* = object
     typ*: string
     ident*: string
-    comment*: string
+    commentSingle*: string
+    commentMulti*: string
   CStruct* = object
     typ*: string
     elems*: seq[CStructElem]
 
 var
   structTyp: string
-  commentVar: string
+  commentSingleVar: string
+  commentMultiVar: string
   elemsVar: seq[CStructElem]
 
 let
@@ -40,10 +43,18 @@ let
     ident <- cIdentFirstChar * *cIdentChars * ?(*Blank * cArray)
     idents <- ident * *(*Blank * ',' * *Blank * ident)
 
-    commentLine <- "//" * *Blank * >*(1 - nl):
+    commentSingle <- "//" * *Blank * >*(1 - nl):
       when defined(debug):
-        echo "comment = ", $1
-      commentVar = $1
+        echo "comment single = ", $1
+      commentSingleVar = $1
+
+    commentMultiEnd <- "*/"
+    commentMulti <- "/*" * *spOrNl * >*(1 - commentMultiEnd) * *spOrNl * commentMultiEnd:
+      when defined(debug):
+        echo "comment multi = ", $1
+      commentMultiVar = $1
+
+    comment <- commentSingle | commentMulti
 
     structStart <- *Blank * "struct" * +Blank * >ident * *spOrNl * '{' * ?nl:
       when defined(debug):
@@ -54,14 +65,16 @@ let
       when defined(debug):
         echo "found blockEnd"
 
-    elemLine <- *Blank * >ident * +Blank * >idents * *Blank * ';' * *Blank * ?commentLine * ?nl:
+    elemLine <- *Blank * >ident * +Blank * >idents * *Blank * ';' * *Blank * ?comment * ?nl:
       when defined(debug):
         echo "elem type = ", $1
         echo "elem identifier = ", $2
       elemsVar.add CStructElem(typ: $1,
                                ident: $2,
-                               comment: commentVar)
-      commentVar.reset
+                               commentSingle: commentSingleVar.strip(),
+                               commentMulti: commentMultiVar.strip())
+      commentSingleVar.reset
+      commentMultiVar.reset
 
     # 'nonEmptyLine' will not match a blank line.
     nonEmptyLine <- >+(1 - nl):

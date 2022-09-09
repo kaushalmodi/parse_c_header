@@ -23,13 +23,16 @@ struct fooD
     check structs == @[CStruct(typ: "fooD",
                                elems: @[CStructElem(typ: "bool",
                                                     ident: "bar, foo",
-                                                    comment: "abc def"),
+                                                    commentSingle: "abc def",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "aaa_bbb_Ccc",
-                                                    comment: "ghi jkl"),
+                                                    commentSingle: "ghi jkl",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "ddd",
-                                                    comment: "")])
+                                                    commentSingle: "",
+                                                    commentMulti: "")])
     ]
 
   test "empty comment":
@@ -45,10 +48,33 @@ struct fooD
     check structs == @[CStruct(typ: "fooD",
                                elems: @[CStructElem(typ: "bool",
                                                     ident: "bar",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "ddd",
-                                                    comment: "")])
+                                                    commentSingle: "",
+                                                    commentMulti: "")])
+    ]
+
+  test "multi-line comment":
+    check cStructsPat.match("""
+struct fooD
+{
+    bool        bar;        /* comment for bar */
+    uint16_t    ddd;        /* comment for ddd */
+};
+""", structs).ok
+    when defined(debug):
+      echo structs
+    check structs == @[CStruct(typ: "fooD",
+                               elems: @[CStructElem(typ: "bool",
+                                                    ident: "bar",
+                                                    commentSingle: "",
+                                                    commentMulti: "comment for bar"),
+                                        CStructElem(typ: "uint16_t",
+                                                    ident: "ddd",
+                                                    commentSingle: "",
+                                                    commentMulti: "comment for ddd")])
     ]
 
   test "structs with arrays":
@@ -67,19 +93,24 @@ struct zoo_t
     check structs == @[CStruct(typ: "zoo_t",
                                elems: @[CStructElem(typ: "uint16_t",
                                                     ident: "foo",
-                                                    comment: "abc def."),
+                                                    commentSingle: "abc def.",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "b_a_r",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "zoo[LULU]",
-                                                    comment: "ghi jkl."),
+                                                    commentSingle: "ghi jkl.",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "eee",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "double",
                                                     ident: "fff_ggg [HHH_III]",
-                                                    comment: "mno")])
+                                                    commentSingle: "mno",
+                                                    commentMulti: "")])
     ]
 
   test "structs with blank lines":
@@ -97,10 +128,12 @@ struct fooBar
     check structs == @[CStruct(typ: "fooBar",
                                elems: @[CStructElem(typ: "uint32_t",
                                                     ident: "a",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "b",
-                                                    comment: "")])
+                                                    commentSingle: "",
+                                                    commentMulti: "")])
     ]
 
   test "structs with comment lines":
@@ -118,10 +151,12 @@ struct fooBar
     check structs == @[CStruct(typ: "fooBar",
                                elems: @[CStructElem(typ: "uint32_t",
                                                     ident: "a",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "b",
-                                                    comment: "")])
+                                                    commentSingle: "",
+                                                    commentMulti: "")])
     ]
 
   test "multiple structs":
@@ -163,48 +198,62 @@ struct fooBarArr
     check structs == @[CStruct(typ: "zoo_t",
                                elems: @[CStructElem(typ: "uint16_t",
                                                     ident: "foo",
-                                                    comment: "abc def."),
+                                                    commentSingle: "abc def.",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "b_a_r",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "zoo[LULU]",
-                                                    comment: "ghi jkl."),
+                                                    commentSingle: "ghi jkl.",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "eee",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "double",
                                                     ident: "fff_ggg  [ABC_DEF]",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "h_i_j [K_L_M]",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "no[PQ]",
-                                                    comment: "")]),
+                                                    commentSingle: "",
+                                                    commentMulti: "")]),
                        CStruct(typ: "fooBar",
                                elems: @[CStructElem(typ: "uint32_t",
                                                     ident: "a",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "b",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "c",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "d",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "e",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "f",
-                                                    comment: "")]),
+                                                    commentSingle: "",
+                                                    commentMulti: "")]),
                        CStruct(typ: "fooBarArr",
                                elems: @[CStructElem(typ: "fooBar",
                                                     ident: "profiles[NO_OF_PROFILES]",
-                                                    comment: "")])
+                                                    commentSingle: "",
+                                                    commentMulti: "")])
     ]
 
   test "example header":
@@ -237,25 +286,32 @@ void zoo(fooD* d);
     check structs == @[CStruct(typ: "fooD",
                                elems: @[CStructElem(typ: "bool",
                                                     ident: "bar",
-                                                    comment: "abc def"),
+                                                    commentSingle: "abc def",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "aaa_bbb_Ccc",
-                                                    comment: "ghi jkl"),
+                                                    commentSingle: "ghi jkl",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "dd_ee",
-                                                    comment: "mno pqr."),
+                                                    commentSingle: "mno pqr.",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint32_t",
                                                     ident: "ff_gg",
-                                                    comment: "stuvwxyz"),
+                                                    commentSingle: "stuvwxyz",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "ddd",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "hhIIjj__kl",
-                                                    comment: ""),
+                                                    commentSingle: "",
+                                                    commentMulti: ""),
                                         CStructElem(typ: "uint16_t",
                                                     ident: "mno",
-                                                    comment: "")])
+                                                    commentSingle: "",
+                                                    commentMulti: "")])
     ]
 
   test "enum block closing brace ignore":
